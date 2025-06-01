@@ -1,0 +1,84 @@
+# backend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: ${ACR_LOGIN_SERVER}/backend:${BUILD_NUMBER}
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "500m" # Example: 0.5 CPU core
+            memory: "128" # Example: 512 MiB of memory
+          requests:
+            cpu: "250m" # Example: 0.25 CPU core
+            memory: "64Mi"
+
+---
+# frontend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${ACR_LOGIN_SERVER}/frontend:${BUILD_NUMBER}
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "500m" # Example: 0.5 CPU core
+            memory: "128" # Example: 512 MiB of memory
+          requests:
+            cpu: "250m" # Example: 0.25 CPU core
+            memory: "64Mi"
+
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

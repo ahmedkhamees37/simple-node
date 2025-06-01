@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    tools {
+        terraform 'Terraform'
+    }
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        TF_VAR_region = 'us-west-2'
+        TF_VAR_bucket_name = 'my-app-bucket-${BUILD_NUMBER}'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                input message: 'Do you want to apply the Terraform plan?'
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'terraform show'
+        }
+    }
+}

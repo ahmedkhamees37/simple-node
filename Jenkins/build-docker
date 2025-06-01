@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'Node 14'
+        maven 'Maven 3'
+    }
+
+    environment {
+        ACR_NAME = 'your-acr-name'
+        ACR_LOGIN_SERVER = "${ACR_NAME}.azurecr.io"
+        ACR_CREDENTIALS = credentials('acr-credentials')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Build and Push Docker Images') {
+            steps {
+                script {
+                    docker.withRegistry("https://${ACR_LOGIN_SERVER}", 'acr-credentials') {
+                        def backendImage = docker.build("${ACR_LOGIN_SERVER}/backend:${BUILD_NUMBER}", "-f Dockerfile.backend .")
+                        backendImage.push()
+
+                        def frontendImage = docker.build("${ACR_LOGIN_SERVER}/frontend:${BUILD_NUMBER}", "-f Dockerfile.frontend .")
+                        frontendImage.push()
+                    }
+                }
+            }
+        }
+    }
+}

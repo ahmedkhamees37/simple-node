@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'Node 14'
+        maven 'Maven 3'
+    }
+
+    environment {
+        SERVER_IP = credentials('ubuntu-server-ip')
+        SERVER_USER = credentials('ubuntu-server-user')
+        SERVER_SSH_KEY = credentials('ubuntu-server-ssh-key')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Deploy to Ubuntu Server') {
+            steps {
+                sshagent(credentials: ['ubuntu-server-ssh-key']) {
+                    sh """
+                        scp -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
+                        scp -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart app'
+                    """
+                }
+            }
+        }
+    }
+}
