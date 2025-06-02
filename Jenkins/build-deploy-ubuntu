@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node 14'
-        maven 'Maven 3'
-    }
-
     environment {
         SERVER_IP = credentials('ubuntu-server-ip')
         SERVER_USER = credentials('ubuntu-server-user')
