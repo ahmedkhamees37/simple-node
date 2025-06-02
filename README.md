@@ -39,6 +39,8 @@
 
 ### Note
 
+- Jenkins installation can be on kubernetes, or on server
+
 - please be advised that I am not using terraform in this repo, if you want to do that (which is not best practice), you will need to get into terraform directory before terraform init
 
 - try to attach the azure devops task with pull requests, branches, and merge requests to the team leader.
