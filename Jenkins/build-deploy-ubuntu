@@ -4,7 +4,7 @@ pipeline {
     environment {
         SERVER_IP = '127.0.0.1'
         SERVER_USER = 'ahmed'
-        SERVER_SSH_KEY = credentials('SERVER_SSH_KEY')
+        SERVER_PASSWORD = credentials('SERVER_PASSWORD')
     }
 
     stages {
@@ -40,9 +40,9 @@ pipeline {
         stage('Deploy to Ubuntu Server') {
             steps {
                 sh """
-                    scp -i $SERVER_SSH_KEY -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/
-                    scp -i $SERVER_SSH_KEY -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
-                    ssh -i $SERVER_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
+                    scp -p $SERVER_PASSWORD -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/
+                    scp -p $SERVER_PASSWORD -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
+                    ssh -p $SERVER_PASSWORD -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
                 """
             }
         }
