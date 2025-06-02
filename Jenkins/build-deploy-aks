@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    options {
-        // This will delete the workspace before the build starts
-        cleanWs()
-    }
-    
     environment {
         ACR_NAME = 'your-acr-name'
         ACR_LOGIN_SERVER = "${ACR_NAME}.azurecr.io"
@@ -16,6 +11,12 @@ pipeline {
     }
 
     stages {
+        stage('Cleanup') {
+            steps {
+                deleteDir()
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm

@@ -1,12 +1,13 @@
 pipeline {
     agent any
 
-    options {
-        // This will delete the workspace before the build starts
-        cleanWs()
-    }
-    
     stages {
+        stage('Cleanup') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
