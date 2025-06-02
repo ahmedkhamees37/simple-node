@@ -2,7 +2,9 @@ pipeline {
     agent any
  
     environment {
-        SERVER_IP = credentials('SERVER_IP')
+        SERVER_IP = credentials('ubuntu-server-ip')
+        SERVER_USER = credentials('ubuntu-server-user')
+        SERVER_SSH_KEY = credentials('ubuntu-server-ssh-key')
     }
 
     stages {
@@ -37,13 +39,12 @@ pipeline {
 
         stage('Deploy to Ubuntu Server') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'SERVER_USER', keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'SERVER_USER')]) {
-                    sh '''
-                        scp -i $MY_SSH_KEY  -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
-                        ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo java -jar /opt/app/app.jar'
-                        scp -i $MY_SSH_KEY -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
-                        ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
-                    '''
+                sshagent(credentials: ['ubuntu-server-ssh-key']) {
+                    sh """
+                        scp -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
+                        scp -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
+                    """
                 }
             }
         }
