@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        // This will delete the workspace before the build starts
+        cleanWs()
+    }
+    
     environment {
         SERVER_IP = credentials('ubuntu-server-ip')
         SERVER_USER = credentials('ubuntu-server-user')

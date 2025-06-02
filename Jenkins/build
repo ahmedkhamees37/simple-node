@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        // This will delete the workspace before the build starts
+        cleanWs()
+    }
+    
     stages {
         stage('Checkout') {
             steps {
