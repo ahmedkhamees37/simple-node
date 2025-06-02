@@ -40,6 +40,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'SERVER_USER', keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'SERVER_USER')]) {
                     sh '''
                         scp -i $MY_SSH_KEY  -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
+                        ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo java -jar /opt/app/app.jar'
                         scp -i $MY_SSH_KEY -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
                         ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
                     '''
