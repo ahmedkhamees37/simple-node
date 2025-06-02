@@ -39,13 +39,11 @@ pipeline {
 
         stage('Deploy to Ubuntu Server') {
             steps {
-                sshagent(credentials: ['SERVER_SSH_KEY']) {
-                    sh """
-                        scp -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
-                        scp -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
-                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
-                    """
-                }
+                sh """
+                    scp -i $SERVER_SSH_KEY -o StrictHostKeyChecking=no backend/target/*.jar ${SERVER_USER}@${SERVER_IP}:/opt/app/app.jar
+                    scp -i $SERVER_SSH_KEY -r -o StrictHostKeyChecking=no frontend/build/* ${SERVER_USER}@${SERVER_IP}:/var/www/html/
+                    ssh -i $SERVER_SSH_KEY -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} 'sudo systemctl restart apache2'
+                """
             }
         }
     }
