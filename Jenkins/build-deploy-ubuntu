@@ -2,8 +2,8 @@ pipeline {
     agent any
  
     environment {
-        SERVER_IP = credentials('SERVER_IP')
-        SERVER_USER = credentials('SERVER_USER')
+        SERVER_IP = '127.0.0.1'
+        SERVER_USER = 'ahmed'
         SERVER_SSH_KEY = credentials('SERVER_SSH_KEY')
     }
 
