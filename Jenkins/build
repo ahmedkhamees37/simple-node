@@ -17,11 +17,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    script {
-                        docker.image('maven:3.9.6-eclipse-temurin-17').inside('-v $HOME/.m2:/root/.m2') {
-                            sh 'mvn clean package'
-                        }
-                    }
+                    sh 'mvn clean package'
                 }
             }
         }
@@ -29,12 +25,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    script {
-                        docker.image('node:20').inside {
-                            sh 'npm install'
-                            sh 'npm run build'
-                        }
-                    }
+                    sh 'npm install'
+                    sh 'npm run build'
                 }
             }
         }
@@ -44,15 +36,6 @@ pipeline {
                 archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true
                 archiveArtifacts artifacts: 'frontend/build/**/*', fingerprint: true
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Build completed successfully!'
-        }
-        failure {
-            echo 'Build failed! Check the logs above for details.'
         }
     }
 }
