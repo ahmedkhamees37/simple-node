@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.6-eclipse-temurin-17' // Use a Maven image with Java
-            args '-v /root/.m2:/root/.m2' // Optional: cache dependencies
-        }
-    }
+    agent any
 
     stages {
         stage('Cleanup') {
@@ -28,11 +23,6 @@ pipeline {
         }
 
         stage('Build Frontend') {
-            agent {
-                docker {
-                    image 'node:20' // Use Node.js image for frontend
-                }
-            }
             steps {
                 dir('frontend') {
                     sh 'npm install'
