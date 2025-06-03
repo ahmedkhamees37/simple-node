@@ -36,7 +36,7 @@
 
 7- Team leader will add evaluation for every member, and every member will evaluate team leader.
 
-
+0
 ### Note
 
 - Jenkins installation can be on kubernetes, or on server
